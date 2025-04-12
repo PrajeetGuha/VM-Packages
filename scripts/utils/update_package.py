@@ -165,7 +165,6 @@ def update_version_url(package):
     # Use findall as some packages have two urls (for 32 and 64 bits), we need to update both
     # Match urls like:
     # - https://download.sweetscape.com/010EditorWin32Installer12.0.1.exe
-    # - https://www.winitor.com/tools/pestudio/current/pestudio-9.53.zip
     matches = re.findall(r"[\"'](https{0,1}://.+?[A-Za-z\-_]((?:\d{1,4}\.){1,3}\d{1,4})[\w\.\-]+)[\"']", content)
 
     # It doesn't include a download url with the version
@@ -232,11 +231,53 @@ def update_dependencies(package):
         return package_version
     return None
 
+# Update package which uses a generic url that has no version
+def update_dynamic_url(package):
+
+    # read the nuspec file
+    nuspec_path = f"packages/{package}/{package}.nuspec"
+    with open(nuspec_path, "r", encoding="utf-8") as file:
+        content = file.read()
+
+    # find the version from nuspec
+    version = re.findall(
+        r'<version>(?P<version>[^<])</version>',
+        content
+    )[0]
+
+    # continue if the version is of structure 0.0.0.yyyymmdd
+    if re.fullmatch(r'0\.0\.0\.(\d{8})',version):
+        install_script_path, content = get_install_script(package)
+
+        # find the urls and sha256hashes in the chocolateyinstall.ps1
+        matches_url = re.findall(r"[\"']https{0,1}://[^\"']+[\"']", content)
+        matches_hash = re.findall(r"[\"'][a-fA-F0-9]{64}[\"']", content)
+
+        # if there is no matching url or no matching hashes or the number of matching url is not equal to number of matching hashes exit out
+        if not matches_url or not matches_hash or len(matches_url) != len(matches_hash):
+            return None
+
+        # find the new hash and check with existing hash and replace if different
+        for url,sha256 in zip(matches_url,matches_hash):
+            latest_sha256 = get_sha256(url)
+            if latest_sha256 == sha256:
+                return None
+
+            content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)  
+
+        # write back the changed chocolateyinstall.ps1
+        with open(install_script_path, "w") as file:
+            file.write(content)
+        
+        # since not versioned url, the current version will be same as previous version
+        update_nuspec_version(package, version)
 
 class UpdateType(IntEnum):
+    # the UpdateTypes are identified in binary, so the number associated with it should be power of 2
     DEPENDENCIES = 1
     GITHUB_URL = 2
     VERSION_URL = 4
+    DYNAMIC_URL = 8
     ALL = DEPENDENCIES | GITHUB_URL | VERSION_URL
 
     def __str__(self):
@@ -269,6 +310,11 @@ if __name__ == "__main__":
 
     if args.update_type & UpdateType.VERSION_URL:
         latest_version2 = update_version_url(args.package_name)
+        if latest_version2:
+            latest_version = latest_version2
+
+    if args.update_type & UpdateType.DYNAMIC_URL:
+        latest_version2 = update_dynamic_url(args.package_name)
         if latest_version2:
             latest_version = latest_version2
 
