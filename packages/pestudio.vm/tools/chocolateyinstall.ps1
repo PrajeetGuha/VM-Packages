@@ -5,6 +5,6 @@ $toolName = 'pestudio'
 $category = VM-Get-Category($MyInvocation.MyCommand.Definition)
 
 $zipUrl = 'https://www.winitor.com/tools/pestudio/current/pestudio.zip'
-$zipSha256 = 'dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f'
+$zipSha256 = 'acc8eac2b5060d81c1285c2c6b050d18a045b7c659e6bf11cfcaada3c00bd1dd'
 
 VM-Install-From-Zip $toolName $category $zipUrl -zipSha256 $zipSha256 -innerFolder $true
