@@ -255,8 +255,8 @@ def update_dynamic_url(package):
         install_script_path, content = get_install_script(package)
 
         # find the urls and sha256hashes in the chocolateyinstall.ps1
-        matches_url = re.findall(r"[\"']https{0,1}://[^\"']+[\"']", content)
-        matches_hash = re.findall(r"[\"'][a-fA-F0-9]{64}[\"']", content)
+        matches_url = re.findall(r"[\"'](https{0,1}://[^\"']+)[\"']", content)
+        matches_hash = re.findall(r"[\"']([a-fA-F0-9]{64})[\"']", content)
 
         # if there is no matching url or no matching hashes or the number of matching url is not equal to number of matching hashes exit out
         if not matches_url or not matches_hash or len(matches_url) != len(matches_hash):
