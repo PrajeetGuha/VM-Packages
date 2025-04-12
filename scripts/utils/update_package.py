@@ -248,7 +248,7 @@ def update_dynamic_url(package):
         content = file.read()
 
     # find the version from nuspec
-    version = re.findall(r"<version>(?P<version>[^<])</version>", content)[0]
+    version = re.findall(r"<version>(?P<version>[^<]+)</version>", content)[0]
 
     # continue if the version is of structure 0.0.0.yyyymmdd
     if re.fullmatch(r"0\.0\.0\.(\d{8})", version):
