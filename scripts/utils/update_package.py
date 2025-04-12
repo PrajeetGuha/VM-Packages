@@ -268,6 +268,7 @@ def update_dynamic_url(package):
             if latest_sha256 == sha256:
                 return None
 
+            print(f"New package hash present, package will be updated - {package}")
             content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)
 
         # write back the changed chocolateyinstall.ps1
