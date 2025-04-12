@@ -1,4 +1,4 @@
-name: Update packages
+name: Fix Broken Hashes
 
 on:
   workflow_dispatch:
