@@ -276,6 +276,7 @@ def update_dynamic_url(package):
 
         # since not versioned url, the current version will be same as previous version
         update_nuspec_version(package, version)
+        return None
 
 
 class UpdateType(IntEnum):
@@ -325,9 +326,7 @@ if __name__ == "__main__":
             latest_version = latest_version2
 
     if args.update_type & UpdateType.DYNAMIC_URL:
-        latest_version2 = update_dynamic_url(args.package_name)
-        if latest_version2:
-            latest_version = latest_version2
+        latest_version = update_dynamic_url(args.package_name)
 
     if not latest_version:
         exit(1)
