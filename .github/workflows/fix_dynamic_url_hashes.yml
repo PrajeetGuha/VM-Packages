@@ -22,7 +22,7 @@ jobs:
           foreach ($packagePath in (Get-ChildItem packages)){
             $package = $packagePath.Name
             $newVersion = 0
-            $UPDATE_TYPE = DYNAMIC_URL
+            $UPDATE_TYPE = 'DYNAMIC_URL'
             $version = python scripts\utils\update_package.py $package --update_type $UPDATE_TYPE
             $updated = $?
             echo "$package $version"
