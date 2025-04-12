@@ -23,17 +23,25 @@ def replace_version(latest_version, nuspec_content):
         except ValueError:
             # not all tools use symver, observed examples: `cp_1.1.0` or `current`
             print(f"unusual version format: {latest_version}")
-            print("reusing old version with updated date, manual fixing may be appropriate")
+            print(
+                "reusing old version with updated date, manual fixing may be appropriate"
+            )
             latest_version = version
     # If same version add date
     if version == latest_version:
         latest_version += "." + time.strftime("%Y%m%d")
-    return latest_version, re.sub("<version>[^<]+</version>", f"<version>{latest_version}</version>", nuspec_content)
+    return latest_version, re.sub(
+        "<version>[^<]+</version>",
+        f"<version>{latest_version}</version>",
+        nuspec_content,
+    )
 
 
 # Get latest version from GitHub releases
 def get_latest_version(org, project, version):
-    response = requests.get(f"https://api.github.com/repos/{org}/{project}/releases/latest")
+    response = requests.get(
+        f"https://api.github.com/repos/{org}/{project}/releases/latest"
+    )
     if not response.ok:
         print(f"GitHub API response not ok: {response.status_code}")
         return None
@@ -125,7 +133,9 @@ def update_github_url(package):
         # Hash can be uppercase or downcase
         if not latest_sha256:
             return None
-        content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)
+        content = content.replace(sha256, latest_sha256).replace(
+            sha256.upper(), latest_sha256
+        )
 
     content = content.replace(version, latest_version)
     with open(install_script_path, "w") as file:
@@ -165,7 +175,10 @@ def update_version_url(package):
     # Use findall as some packages have two urls (for 32 and 64 bits), we need to update both
     # Match urls like:
     # - https://download.sweetscape.com/010EditorWin32Installer12.0.1.exe
-    matches = re.findall(r"[\"'](https{0,1}://.+?[A-Za-z\-_]((?:\d{1,4}\.){1,3}\d{1,4})[\w\.\-]+)[\"']", content)
+    matches = re.findall(
+        r"[\"'](https{0,1}://.+?[A-Za-z\-_]((?:\d{1,4}\.){1,3}\d{1,4})[\w\.\-]+)[\"']",
+        content,
+    )
 
     # It doesn't include a download url with the version
     if not matches:
@@ -183,7 +196,9 @@ def update_version_url(package):
         latest_version = latest_version_match
         sha256 = get_sha256(url)
         # Hash can be uppercase or downcase
-        content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)
+        content = content.replace(sha256, latest_sha256).replace(
+            sha256.upper(), latest_sha256
+        )
 
     content = content.replace(version, latest_version)
     with open(install_script_path, "w") as file:
@@ -231,6 +246,7 @@ def update_dependencies(package):
         return package_version
     return None
 
+
 # Update package which uses a generic url that has no version
 def update_dynamic_url(package):
 
@@ -240,13 +256,10 @@ def update_dynamic_url(package):
         content = file.read()
 
     # find the version from nuspec
-    version = re.findall(
-        r'<version>(?P<version>[^<])</version>',
-        content
-    )[0]
+    version = re.findall(r"<version>(?P<version>[^<])</version>", content)[0]
 
     # continue if the version is of structure 0.0.0.yyyymmdd
-    if re.fullmatch(r'0\.0\.0\.(\d{8})',version):
+    if re.fullmatch(r"0\.0\.0\.(\d{8})", version):
         install_script_path, content = get_install_script(package)
 
         # find the urls and sha256hashes in the chocolateyinstall.ps1
@@ -258,19 +271,22 @@ def update_dynamic_url(package):
             return None
 
         # find the new hash and check with existing hash and replace if different
-        for url,sha256 in zip(matches_url,matches_hash):
+        for url, sha256 in zip(matches_url, matches_hash):
             latest_sha256 = get_sha256(url)
             if latest_sha256 == sha256:
                 return None
 
-            content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)  
+            content = content.replace(sha256, latest_sha256).replace(
+                sha256.upper(), latest_sha256
+            )
 
         # write back the changed chocolateyinstall.ps1
         with open(install_script_path, "w") as file:
             file.write(content)
-        
+
         # since not versioned url, the current version will be same as previous version
         update_nuspec_version(package, version)
+
 
 class UpdateType(IntEnum):
     # the UpdateTypes are identified in binary, so the number associated with it should be power of 2
@@ -296,7 +312,12 @@ class UpdateType(IntEnum):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("package_name")
-    parser.add_argument("--update_type", type=UpdateType.from_str, choices=list(UpdateType), default=UpdateType.ALL)
+    parser.add_argument(
+        "--update_type",
+        type=UpdateType.from_str,
+        choices=list(UpdateType),
+        default=UpdateType.ALL,
+    )
     args = parser.parse_args()
 
     latest_version = None
