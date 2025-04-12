@@ -81,6 +81,7 @@ def update_nuspec_version(package, latest_version):
     latest_version, content = replace_version(latest_version, content)
     with open(nuspec_path, "w") as file:
         file.write(content)
+    return latest_version
 
 
 # read the chocolateyinstall.ps1 package file
@@ -265,10 +266,9 @@ def update_dynamic_url(package):
         # find the new hash and check with existing hash and replace if different
         for url, sha256 in zip(matches_url, matches_hash):
             latest_sha256 = get_sha256(url)
-            if latest_sha256 == sha256:
+            if latest_sha256.lower() == sha256.lower():
                 return None
 
-            print(f"New package hash present, package will be updated - {package}")
             content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)
 
         # write back the changed chocolateyinstall.ps1
@@ -276,8 +276,8 @@ def update_dynamic_url(package):
             file.write(content)
 
         # since not versioned url, the current version will be same as previous version
-        update_nuspec_version(package, version)
-        return version
+        latest_version = update_nuspec_version(package, version)
+        return latest_version
 
 
 class UpdateType(IntEnum):
