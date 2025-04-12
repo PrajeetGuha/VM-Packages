@@ -38,6 +38,7 @@ jobs:
                 echo "$package $version FAILED"
                 git diff
               }
+            }
             # Clean changes and built packages
             git restore .
             Remove-Item built_pkgs -Recurse -ErrorAction Ignore
