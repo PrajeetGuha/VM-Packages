@@ -277,7 +277,7 @@ def update_dynamic_url(package):
 
         # since not versioned url, the current version will be same as previous version
         update_nuspec_version(package, version)
-        return None
+        return version
 
 
 class UpdateType(IntEnum):
