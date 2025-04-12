@@ -15,6 +15,7 @@ jobs:
         run: |
           git config user.email 'vm-packages@google.com'
           git config user.name 'vm-packages'
+          git status
       - name: Update packages
         run: |
           $root = pwd
@@ -53,8 +54,8 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@a4f52f8033a6168103c2538976c07b467e8163bc # v6.0.1
         with:
-          title: ':robot: Package update'
-          body: 'Automated package update (fix broken hashes) created by [update_packages.yml](https://github.com/mandiant/VM-Packages/blob/main/.github/workflows/update_packages.yml). Note the update is triggered weekly and will modify this PR if it has not been merged.'
+          title: ':robot: Fix broken hashes'
+          body: 'Automated package update (fix broken hashes) created by [fix_dynamic_url_hashes.yml](https://github.com/mandiant/VM-Packages/blob/main/.github/workflows/fix_dynamic_url_hashes.yml). Note the update is triggered weekly and will modify this PR if it has not been merged.'
           branch: package-update
           author: vm-packages <vm-packages@google.com>
           add-paths: packages/*
