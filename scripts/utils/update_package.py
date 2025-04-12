@@ -23,9 +23,7 @@ def replace_version(latest_version, nuspec_content):
         except ValueError:
             # not all tools use symver, observed examples: `cp_1.1.0` or `current`
             print(f"unusual version format: {latest_version}")
-            print(
-                "reusing old version with updated date, manual fixing may be appropriate"
-            )
+            print("reusing old version with updated date, manual fixing may be appropriate")
             latest_version = version
     # If same version add date
     if version == latest_version:
@@ -39,9 +37,7 @@ def replace_version(latest_version, nuspec_content):
 
 # Get latest version from GitHub releases
 def get_latest_version(org, project, version):
-    response = requests.get(
-        f"https://api.github.com/repos/{org}/{project}/releases/latest"
-    )
+    response = requests.get(f"https://api.github.com/repos/{org}/{project}/releases/latest")
     if not response.ok:
         print(f"GitHub API response not ok: {response.status_code}")
         return None
@@ -133,9 +129,7 @@ def update_github_url(package):
         # Hash can be uppercase or downcase
         if not latest_sha256:
             return None
-        content = content.replace(sha256, latest_sha256).replace(
-            sha256.upper(), latest_sha256
-        )
+        content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)
 
     content = content.replace(version, latest_version)
     with open(install_script_path, "w") as file:
@@ -196,9 +190,7 @@ def update_version_url(package):
         latest_version = latest_version_match
         sha256 = get_sha256(url)
         # Hash can be uppercase or downcase
-        content = content.replace(sha256, latest_sha256).replace(
-            sha256.upper(), latest_sha256
-        )
+        content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)
 
     content = content.replace(version, latest_version)
     with open(install_script_path, "w") as file:
@@ -276,9 +268,7 @@ def update_dynamic_url(package):
             if latest_sha256 == sha256:
                 return None
 
-            content = content.replace(sha256, latest_sha256).replace(
-                sha256.upper(), latest_sha256
-            )
+            content = content.replace(sha256, latest_sha256).replace(sha256.upper(), latest_sha256)
 
         # write back the changed chocolateyinstall.ps1
         with open(install_script_path, "w") as file:
